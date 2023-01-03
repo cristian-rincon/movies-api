@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "movies-api"
+version = "0.1.0"
+description = "Movies API using FASTAPI as backend framework"
+authors = ["cristian-rincon <cristian.o.rincon.b@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "app"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.88.0"
+uvicorn = "^0.20.0"
+
+
+[tool.poetry.group.dev.dependencies]
+black = {version = "^23.1a1", allow-prereleases = true}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
