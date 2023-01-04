@@ -1,6 +1,6 @@
 import json
 from typing import List
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, Depends
 from fastapi.responses import JSONResponse
 from http import HTTPStatus
 
@@ -11,6 +11,7 @@ from app.routers.v1.utils import (
     get_movie_by_id,
     movies,
 )
+from app.auth import JWTBearer
 
 router = APIRouter(
     prefix="/v1/movies",
@@ -42,7 +43,7 @@ def get_movies(genre: str = None, year: int = None, id: int = None) -> List[Movi
     return JSONResponse(content=movies, status_code=HTTPStatus.OK)
 
 
-@router.post("", status_code=HTTPStatus.CREATED, response_model=dict)
+@router.post("", status_code=HTTPStatus.CREATED, response_model=dict, dependencies=[Depends(JWTBearer())])
 def create_movie(movie: Movie) -> dict:
     if movie.id in [movie["id"] for movie in movies]:
         return {"error": "Movie already exists"}

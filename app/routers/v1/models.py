@@ -20,3 +20,8 @@ class Movie(BaseModel):
                 "genre": "Drama",
             }
         }
+
+
+class BaseUser(BaseModel):
+    username : str = Field(..., max_length=50)
+    password : str = Field(..., max_length=50)
