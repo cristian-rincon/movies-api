@@ -21,6 +21,11 @@ def get_movies_by_year(year: int):
 
 
 def get_movie_by_id(movie_id: int, get_index=False):
-    for index, movie in enumerate(movies):
-        if movie["id"] == movie_id:
-            return (index, movie) if get_index else movie
+    return next(
+        (
+            (index, movie) if get_index else movie
+            for index, movie in enumerate(movies)
+            if movie["id"] == movie_id
+        ),
+        None,
+    )
