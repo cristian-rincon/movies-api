@@ -1,12 +1,14 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
+
+from app.auth import generate_token
 from app.routers.v1.models import BaseUser
-from app.auth import generate_token 
 
 router = APIRouter(
     prefix="/v1/auth",
     tags=["auth"],
 )
+
 
 @router.post("/login")
 def login(user: BaseUser):

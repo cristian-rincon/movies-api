@@ -13,10 +13,12 @@ fastapi = "^0.88.0"
 uvicorn = "^0.20.0"
 loguru = "^0.6.0"
 pyjwt = "^2.6.0"
+sqlalchemy = "^1.4.46"
 
 
 [tool.poetry.group.dev.dependencies]
 black = {version = "^23.1a1", allow-prereleases = true}
+isort = "^5.11.4"
 
 [build-system]
 requires = ["poetry-core"]

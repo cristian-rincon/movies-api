@@ -1,31 +1,22 @@
-import json
+from http import HTTPStatus
 
-def retrieve_movies():
-    with open("app/routers/v1/mocks/movies.json", "r") as f:
-        movies = json.load(f)
-    return movies
+from fastapi.responses import JSONResponse
 
-movies = retrieve_movies()
-
-def get_movies_by_genre(genre: str):
-    movies_by_genre = []
-    for movie in movies:
-        genres = list(movie["genre"].split("|"))
-        if genre.capitalize() in genres:
-            movies_by_genre.append(movie)
-    return movies_by_genre
+from app.config.database import Session
+from app.models.movie import Movie as MovieORM
 
 
-def get_movies_by_year(year: int):
-    return [movie for movie in movies if movie["year"] == year]
+def get_movies_by_genre(genre: str, db: Session):
+    return db.query(MovieORM).filter(MovieORM.genre.contains(genre)).all()
 
 
-def get_movie_by_id(movie_id: int, get_index=False):
-    return next(
-        (
-            (index, movie) if get_index else movie
-            for index, movie in enumerate(movies)
-            if movie["id"] == movie_id
-        ),
-        None,
-    )
+def get_movies_by_year(year: int, db: Session):
+    return db.query(MovieORM).filter(MovieORM.year == year).all()
+
+
+def get_movie_by_id(movie_id: int, db: Session):
+    if movie_found := db.query(MovieORM).filter(MovieORM.id == movie_id).first():
+        return movie_found
+
+    response = {"error": "Movie not found"}
+    return JSONResponse(content=response, status_code=HTTPStatus.NOT_FOUND)
