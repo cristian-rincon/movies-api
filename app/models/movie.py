@@ -23,4 +23,3 @@ class Movie(Base):
     year = Column(Integer)
     rating = Column(Integer)
     genre = Column(String)
-

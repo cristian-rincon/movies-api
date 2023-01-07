@@ -1,6 +1,7 @@
 """Database configuration."""
 
 import os
+from typing import Generator
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -19,7 +20,12 @@ Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
-def get_db():
+def get_db() -> Generator:
+    """Get a database session.
+
+    Yields:
+        Session: The database session.
+    """
     db = Session()
     try:
         yield db
