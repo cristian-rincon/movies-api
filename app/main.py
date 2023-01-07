@@ -1,15 +1,15 @@
 """Main module for the FastAPI app."""
 
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 
 from app.config.database import Base, engine
 from app.routers.v1.auth import router as auth_router
 from app.routers.v1.movies import router as movies_router
 from app.routers.v1.users import router as users_router
 
-# from app.middlewares.error_handler import ErrorHandlerMiddleware
 
-ROUTERS = [movies_router, auth_router, users_router]
+ROUTERS = [users_router, auth_router, movies_router]
 
 
 def create_api() -> FastAPI:
@@ -30,6 +30,12 @@ def create_api() -> FastAPI:
 api = create_api()
 
 Base.metadata.create_all(bind=engine)
+
+
+@api.get("/")
+def index() -> str:
+    """This endpoint will redirect response to /docs."""
+    return RedirectResponse("/docs")
 
 
 @api.get("/ping")
