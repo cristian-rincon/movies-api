@@ -35,6 +35,3 @@ class Movie(BaseModel):
                 "genre": "Drama",
             }
         }
-
-
-

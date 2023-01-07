@@ -2,6 +2,7 @@
 
 from pydantic import BaseModel, Field
 
+
 class BaseUser(BaseModel):
     """Base user Pydantic model."""
 

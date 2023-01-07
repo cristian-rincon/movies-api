@@ -8,11 +8,7 @@ from fastapi.responses import JSONResponse
 
 from app.middlewares.auth import JWTBearer
 from app.config.database import Session
-from app.models.movie import Movie as MovieORM
 from app.schemas.movie import Movie
-from app.routers.v1.utils import (
-    get_movie_by_id,
-)
 
 from app.services.movie import MovieService
 
@@ -28,8 +24,8 @@ MOVIES_MOCK = "app/routers/v1/mocks/movies.json"
 @router.get("", status_code=HTTPStatus.OK, response_model=List[Movie])
 def get_movies(genre: Union[str, None] = None, year: Union[int, None] = None, id: Union[int, None] = None) -> List[Movie]:  # type: ignore
     """Get movies endpoint."""
-    db = Session()
-    movie_service = MovieService(db)
+    database = Session()
+    movie_service = MovieService(database)
     movies, filtered_movies = movie_service.get_movies(genre, year, id)
 
     if filtered_movies and all(filtered_movies):
@@ -58,11 +54,10 @@ def create_movie(movie: Movie) -> dict:
     Returns:
         dict: Response message.
     """
-    db = Session()
-    new_movie = MovieORM(**movie.dict())
+    database = Session()
 
-    movie_service = MovieService(db)
-    movie_service.create_movie(new_movie)
+    movie_service = MovieService(database)
+    movie_service.create_movie(movie)
 
     response = {"message": "Movie created successfully"}
     return JSONResponse(content=response, status_code=HTTPStatus.CREATED)  # type: ignore
@@ -85,18 +80,9 @@ def update_movie(movie_id: int, movie: Movie) -> Union[Any, JSONResponse]:
         Union[Any, JSONResponse]: Response message.
     """
 
-    db = Session()
-    result = get_movie_by_id(movie_id, db)
-
-    if isinstance(result, JSONResponse):
-        return result
-
-    result.title = movie.title
-    result.overview = movie.overview
-    result.year = movie.year
-    result.rating = movie.rating
-    result.genre = movie.genre
-    db.commit()
+    database = Session()
+    movie_service = MovieService(database)
+    movie_service.update_movie(movie, movie_id)
 
     response = {"message": "Movie updated successfully"}
     return JSONResponse(content=response, status_code=HTTPStatus.OK)
@@ -117,13 +103,8 @@ def delete_movie(movie_id: int) -> Response:
         Response: Response message.
     """
 
-    db = Session()
-    result = get_movie_by_id(movie_id, db)
-
-    if isinstance(result, JSONResponse):
-        return result
-
-    db.delete(result)
-    db.commit()
+    database = Session()
+    movie_service = MovieService(database)
+    movie_service.delete_movie(movie_id)
 
     return Response(status_code=HTTPStatus.NO_CONTENT)
