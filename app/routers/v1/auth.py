@@ -1,22 +1,38 @@
 """Auth router."""
-import os
-from fastapi import APIRouter
-from fastapi.responses import JSONResponse
+from datetime import timedelta
 
-from app.middlewares.auth import generate_token
-from app.schemas.user import BaseUser
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+from app.config import database, hashing
+from app.config.settings import ACCESS_TOKEN_EXPIRE_MINUTES
+from app.routers.JWToken import create_access_token
+from app.models.user import User as UserORM
 
 router = APIRouter(
-    prefix="/v1/auth",
-    tags=["auth"],
+    prefix="",
+    tags=["authentication"],
 )
 
+get_db = database.get_db
 
-@router.post("/login")
-def login(user: BaseUser) -> JSONResponse:
-    """Login endpoint."""
-    mock_user = BaseUser(username=os.getenv("ADMIN_USER", "admin"), password=os.getenv("ADMIN_PASS", "123456"))
-    if user == mock_user:
-        token = generate_token({"username": user.username})
-        return JSONResponse(content={"token": token}, status_code=200)
-    return JSONResponse(content={"error": "Invalid credentials"}, status_code=401)
+@router.post('/login')
+def login(request: OAuth2PasswordRequestForm = Depends(),
+          db: Session = Depends(get_db)):
+
+    user = db.query(
+        UserORM).filter(UserORM.email == request.username).first()
+
+    if user is None:
+
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail='Invalid credentials.')
+
+    if not hashing.verify(request.password, user.password):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail='Invalid credentials.')
+
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(data={"sub": user.email},
+                                       expires_delta=access_token_expires)
+    return {"access_token": access_token, "token_type": "bearer"}

@@ -1,7 +1,6 @@
 """Movie model for ORM."""
 
 from sqlalchemy import Column, Integer, String
-
 from app.config.database import Base
 
 
@@ -24,3 +23,4 @@ class Movie(Base):
     year = Column(Integer)
     rating = Column(Integer)
     genre = Column(String)
+

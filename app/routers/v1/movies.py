@@ -6,11 +6,12 @@ from fastapi import APIRouter, Depends, Response
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
-from app.middlewares.auth import JWTBearer
-from app.config.database import Session
+from app.config.oauth2 import get_current_user
+from app.config.database import Session, get_db
+from app.schemas.user import User as UserSchema
 from app.schemas.movie import Movie
-
 from app.services.movie import MovieService
+
 
 router = APIRouter(
     prefix="/v1/movies",
@@ -22,9 +23,15 @@ MOVIES_MOCK = "app/routers/v1/mocks/movies.json"
 
 
 @router.get("", status_code=HTTPStatus.OK, response_model=List[Movie])
-def get_movies(genre: Union[str, None] = None, year: Union[int, None] = None, id: Union[int, None] = None) -> List[Movie]:  # type: ignore
+def get_movies(
+    database: Session = Depends(get_db),
+    current_user: UserSchema = Depends(get_current_user),
+    genre: Union[str, None] = None,
+    year: Union[int, None] = None,
+    id: Union[int, None] = None,
+) -> List[Movie]:  # type: ignore
     """Get movies endpoint."""
-    database = Session()
+    _ = current_user
     movie_service = MovieService(database)
     movies, filtered_movies = movie_service.get_movies(genre, year, id)
 
@@ -43,9 +50,12 @@ def get_movies(genre: Union[str, None] = None, year: Union[int, None] = None, id
     "",
     status_code=HTTPStatus.CREATED,
     response_model=dict,
-    dependencies=[Depends(JWTBearer())],
 )
-def create_movie(movie: Movie) -> dict:
+def create_movie(
+    movie: Movie,
+    database: Session = Depends(get_db),
+    current_user: UserSchema = Depends(get_current_user),
+) -> dict:
     """Create movie endpoint.
 
     Args:
@@ -54,8 +64,7 @@ def create_movie(movie: Movie) -> dict:
     Returns:
         dict: Response message.
     """
-    database = Session()
-
+    _ = current_user
     movie_service = MovieService(database)
     movie_service.create_movie(movie)
 
@@ -67,9 +76,13 @@ def create_movie(movie: Movie) -> dict:
     "/{movie_id}",
     status_code=HTTPStatus.OK,
     response_model=dict,
-    dependencies=[Depends(JWTBearer())],
 )
-def update_movie(movie_id: int, movie: Movie) -> Union[Any, JSONResponse]:
+def update_movie(
+    movie_id: int,
+    movie: Movie,
+    database: Session = Depends(get_db),
+    current_user: UserSchema = Depends(get_current_user),
+) -> Union[Any, JSONResponse]:
     """Update movie endpoint.
 
     Args:
@@ -80,7 +93,7 @@ def update_movie(movie_id: int, movie: Movie) -> Union[Any, JSONResponse]:
         Union[Any, JSONResponse]: Response message.
     """
 
-    database = Session()
+    _ = current_user
     movie_service = MovieService(database)
     movie_service.update_movie(movie, movie_id)
 
@@ -91,9 +104,12 @@ def update_movie(movie_id: int, movie: Movie) -> Union[Any, JSONResponse]:
 @router.delete(
     "/{movie_id}",
     status_code=HTTPStatus.NO_CONTENT,
-    dependencies=[Depends(JWTBearer())],
 )
-def delete_movie(movie_id: int) -> Response:
+def delete_movie(
+    movie_id: int,
+    database: Session = Depends(get_db),
+    current_user: UserSchema = Depends(get_current_user),
+) -> Response:
     """Delete movie endpoint.
 
     Args:
@@ -103,7 +119,7 @@ def delete_movie(movie_id: int) -> Response:
         Response: Response message.
     """
 
-    database = Session()
+    _ = current_user
     movie_service = MovieService(database)
     movie_service.delete_movie(movie_id)
 

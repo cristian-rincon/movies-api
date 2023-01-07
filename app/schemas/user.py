@@ -1,10 +1,18 @@
 """User Pydantic models."""
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
-class BaseUser(BaseModel):
-    """Base user Pydantic model."""
+class User(BaseModel):
+    name: str
+    email: str
+    password: str
 
-    username: str = Field(..., max_length=50)
-    password: str = Field(..., max_length=50)
+
+class UserResponse(BaseModel):
+    name: str
+    email: str
+
+
+    class Config():
+        orm_mode = True
