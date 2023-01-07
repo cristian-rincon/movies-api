@@ -1,3 +1,4 @@
+"""Auth router."""
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
@@ -11,8 +12,9 @@ router = APIRouter(
 
 
 @router.post("/login")
-def login(user: BaseUser):
-    mock_user = BaseUser(username="admin", password="admin")
+def login(user: BaseUser) -> JSONResponse:
+    """Login endpoint."""
+    mock_user = BaseUser(username="admin", password="admin")  # nosec
     if user == mock_user:
         token = generate_token({"username": user.username})
         return JSONResponse(content={"token": token}, status_code=200)
