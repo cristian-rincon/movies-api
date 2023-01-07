@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Response
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
-from app.auth import JWTBearer
+from app.middlewares.auth import JWTBearer
 from app.config.database import Session
 from app.models.movie import Movie as MovieORM
 from app.routers.v1.models import Movie
@@ -76,7 +76,7 @@ def create_movie(movie: Movie) -> dict:
     return JSONResponse(content=response, status_code=HTTPStatus.CREATED)  # type: ignore
 
 
-@router.put("/{movie_id}", status_code=HTTPStatus.OK, response_model=dict)
+@router.put("/{movie_id}", status_code=HTTPStatus.OK, response_model=dict, dependencies=[Depends(JWTBearer())])
 def update_movie(movie_id: int, movie: Movie) -> Union[Any, JSONResponse]:
     """Update movie endpoint.
 
@@ -105,7 +105,7 @@ def update_movie(movie_id: int, movie: Movie) -> Union[Any, JSONResponse]:
     return JSONResponse(content=response, status_code=HTTPStatus.OK)
 
 
-@router.delete("/{movie_id}", status_code=HTTPStatus.NO_CONTENT)
+@router.delete("/{movie_id}", status_code=HTTPStatus.NO_CONTENT, dependencies=[Depends(JWTBearer())])
 def delete_movie(movie_id: int) -> Response:
     """Delete movie endpoint.
 

@@ -2,7 +2,7 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
-from app.auth import generate_token
+from app.middlewares.auth import generate_token
 from app.routers.v1.models import BaseUser
 
 router = APIRouter(
