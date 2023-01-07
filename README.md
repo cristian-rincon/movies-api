@@ -33,6 +33,8 @@ The API has the following endpoints:
 - PUT /v1/movies/{id}: Updates a specific movie.
 - DELETE /v1/movies/{id}: Deletes a specific movie.
 
+All endpoints are documented using OpenAPI. You can view the documentation at http://localhost:80/docs, which is the default endpoint for the Swagger UI.
+
 ## Shutting Down
 
 To stop the container, use the following command:
